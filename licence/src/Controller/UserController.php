@@ -40,15 +40,18 @@ class UserController extends AbstractController
      */
     public function addUser(TontineRepository $tontineRepo,ProfilRepository $profilRepo ,UserPasswordEncoderInterface $encoder,Request $request,SerializerInterface $serializer, \Swift_Mailer $mailer)
     {
-        $user = $request->request->all();
+        //dd("hgjhkjl");
+        $don = $request->request->all();
+        //dd($request->files->get("avatar"));
         //$epargnePostman=json_decode($request->getContent(), true);
-       // dd($user);
+        //  dd($don["user"]);
+         $user=$serializer->decode($don["user"], "json") ;
+         unset($user["avatar"]);
+        //  dd($user["avatar"]);
         $profilObjet=$profilRepo->find($user["profil"]);
         //dd($profilObjet->getLibelle());
         $TontineObjet=$tontineRepo->find($user["tontine"]);
-        $avatar = $request->files->get("avatar");
-        $avatar = fopen($avatar->getRealPath(),"r+");
-        $user["avatar"] = $avatar;
+        
         $profilLibelle = trim($profilObjet->getLibelle());
         //dd($profilLibelle);
         $profil="App\\Entity\\$profilLibelle";
@@ -66,14 +69,18 @@ class UserController extends AbstractController
             $tab["roles"][]=$user["roles"];
             //$tab["status"]=$user["status"];
             $tab["cni"]=$user["cni"];
-            $tab["avatar"]=$user["avatar"];
+            // $tab["avatar"]=$request->files->get("avatar");
             $user = $this->serialize->denormalize($tab,$profil);
+            $avatar = $request->files->get("avatar");
+            $avatar = fopen($avatar->getRealPath(),"rb");
+            //dd($avatar);
+            $user->setAvatar($avatar);
             $email=$user->getEmail();
             $password = $user->getPassword();
             $user->setPassword($this->encoder->encodePassword($user,$password));
             $user->setProfil($profilObjet);
             $user->addTontine($TontineObjet);
-
+            //dd($user);
             $message = (new \Swift_Message('Coordonnées de connexion '))
                 ->setFrom('issa.sarr@uadb.edu.sn')
                 ->setTo($email)

@@ -24,15 +24,17 @@ class UserFixtures extends Fixture
         $faker=Faker\Factory::create('fr_FR');
 
         $tab= ['admin', 'gerant', 'tresorier'];
-        //foreach($tab as $t){
+        for($j=0; $j<20; $j++){
             $tontine=new Tontine();
             $tour=new Tour();
-            $tontine->setNom("Callebasse");
+            $tontine->setNom("Callebasse $j");
             $tontine->setDateCreation(new \DateTime('now'));
             $tontine->setDateFin(new \DateTime('now'));
-            $tontine->setSession("Premiere Session");
+            $tontine->setSession("Session $j");
             $tontine->setArchivage(0);
             $tour->setTontine($tontine);
+            $tour->setNom("Tour $j");
+            $tour->setDate(new \DateTime('now'));
             for($i=0; $i<count($tab); $i++){
                 
                 if($tab[$i]=="admin"){
@@ -66,10 +68,12 @@ class UserFixtures extends Fixture
                 $user->setCni($faker->numberBetween($min = 1000000000000, $max = 9000000000000));
                 $user->setAvatar('image.png');
                 $user->setAdresse($faker->address);
+                $user->addTontine($tontine);
+                $user->addTour($tour);
 
                 $epargne=new Epargne();
                 $epargne->setMontant("2000 fr");
-                $epargne->setInteret("000 fr");
+                $epargne->setInteret("0 fr");
                 $epargne->setDateEpargne(new \DateTime('now'));
                 $epargne->setArchivage(0);
                 $epargne->addTour($tour);
@@ -88,8 +92,8 @@ class UserFixtures extends Fixture
            
            
            
-           
-        //}
-        $manager->flush();
+            $manager->flush();
+        }
+        //$manager->flush();
     }
 }
